@@ -10,10 +10,23 @@ namespace InterviewPrep
     // Deadlock happens when 
     // Thread 1 has held lock on Resource 1 but wants to access Resource 2
     // Thread 2 has held lock on Resource 2 but wants to access Resource 1
+
+    // Resolving Deadlocks
+    // - Acquiring locks in a specific defined order
+    // - Mutex Class
+    // - Monitor.TryEnter() Method
+
+    // Performance Implications of Multithreading Program
+    // - Single Processor - Performance is negatively impacted due to context switching 
+    //
     class Deadlock
     {
         public Deadlock() {
-            Console.WriteLine("Deadlock Class Started");
+            
+        }
+
+        public static void DeadlockDemo() {
+            Console.WriteLine("Deadlock Demo Started");
 
             Account accountA = new Account(101, 5000);
             Account accountB = new Account(102, 5000);
