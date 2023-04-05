@@ -14,6 +14,7 @@ namespace InterviewPrep
         {
             // Creating a Thread
             CreateNewThread();
+            Console.WriteLine("------------------------------------");
 
             // Parameterized Thread
             // - Type safety is not provided
@@ -22,20 +23,58 @@ namespace InterviewPrep
             // Thread workerThread = new Thread(Number.PrintNumbers);
             Thread T1 = new Thread(new ParameterizedThreadStart(Number.PrintNumbers));
             T1.Start(15);
+            Console.WriteLine("------------------------------------");
 
             // Pass parameters to thread in type safe manner
             NumberTypeSafe numberTypeSafe = new NumberTypeSafe(16);
             Thread T2 = new Thread(numberTypeSafe.PrintNumbers);
             T2.Start();
+            Console.WriteLine("------------------------------------");
 
             // Retrieving data from thread using callback method
             SumOfNumbersCallback sumOfNumbersCallback = new SumOfNumbersCallback(PrintSum);
             NumberCallback numberCallback = new NumberCallback(5, sumOfNumbersCallback);
             Thread T3 = new Thread(numberCallback.PrintSumOfNumbers);
             T3.Start();
+            Console.WriteLine("------------------------------------");
 
             // Thread.Join and Thread.IsAlive functions
+            Console.WriteLine("Thread T4 started");
+            Thread T4 = new Thread(NumberWithoutParam.PrintNumbers);
+            T4.Start();
+            Console.WriteLine("------------------------------------");
+            Console.WriteLine("Thread T4 completed");
+            Console.WriteLine("is Thread T4 Alive" + T4.IsAlive);
+            T4.Join();
+            Thread T5 = new Thread(NumberWithoutParam.PrintNumbers);
+            T5.Start();
+            Console.WriteLine("Thread T5 completed");
+            Console.WriteLine("------------------------------------");
 
+            // Protecting shared resources from concurrent access
+            // we've 2 options
+            // 1. Interlocked.increment(ref value)
+            // 2. Locking mechanism 
+            Thread T6 = new Thread(TestThreadingShared.AddOneMillion);
+            Thread T7 = new Thread(TestThreadingShared.AddOneMillion);
+            Thread T8 = new Thread(TestThreadingShared.AddOneMillion);
+            T6.Start();
+            T7.Start();
+            T8.Start();
+            T6.Join();
+            T7.Join();
+            T8.Join();
+            Console.WriteLine("Final Total" + TestThreadingShared.total);
+            Console.WriteLine("------------------------------------");
+
+            // It's even possible to lock the thread using Monitor.Lock 
+            Thread T9 = new Thread(TestThreadingMonitor.AddOneMillion);
+            T9.Start();
+            Console.WriteLine("Final Total" + TestThreadingMonitor.total);
+            Console.WriteLine("------------------------------------");
+
+            // Deadlock
+            Deadlock deadlock = new Deadlock();
 
             Console.ReadKey();
         }
@@ -56,6 +95,50 @@ namespace InterviewPrep
             Thread workerThread = new Thread(new ThreadStart(DoTimeConsumingWork));
             workerThread.Start();
             Console.WriteLine("New thread is created");
+        }
+    }
+
+    class TestThreadingMonitor
+    {
+
+        public static int total = 0;
+        static object _lock = new object();
+
+        public static void AddOneMillion()
+        {
+            for (int i = 0; i < 1000000; i++)
+            {
+                Monitor.Enter(_lock);
+                try {
+                    total += 1;
+                }
+                finally {
+                    Monitor.Exit(_lock);
+                }
+            }
+        }
+    }
+
+    class TestThreadingShared {
+
+        public static int total = 0;
+        static object _lock = new object();
+
+        public static void AddOneMillion()
+        {
+            for (int i = 0; i < 1000000; i++) {
+                lock (_lock) {
+                    total += 1;
+                }
+            }
+        }
+    }
+
+    class NumberWithoutParam
+    {
+        public static void PrintNumbers()
+        {
+            Thread.Sleep(3000);
         }
     }
 
